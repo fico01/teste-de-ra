@@ -1,121 +1,160 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8">
+<html>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello WebXR</title>
+    <title>Pokemon AR Fix</title>
+    
+    <!-- 1. Importando as bibliotecas como scripts normais (A ordem importa!) -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-        }
+      body { margin: 0; overflow: hidden; }
+      #ui {
+        position: absolute; top: 10px; left: 10px; z-index: 1000;
+        background: rgba(0,0,0,0.7); color: white; padding: 10px;
+        font-family: sans-serif; border-radius: 5px;
+      }
     </style>
-</head>
-<body>
-    <div id="info">
-        <h3>WebXR Hello World</h3>
-        <p>Clique em "START AR" para começar</p>
-    </div>
+  </head>
+  <body>
+    
+    <div id="ui">Aguardando câmera... (Aponte para a carta)</div>
 
-    <script type="module">
-        // Importar THREE.js localmente
-        import * as THREE from './libs/three.module.js';
-        import { ARButton } from './libs/ARButton.js';
+    <!-- O A-Frame facilita MUITO o rastreio de imagem sem erros de script -->
+    <!-- ... resto do seu head ... -->
 
-        let camera, scene, renderer;
-        let controller;
+<a-scene 
+  mindar-image="imageTargetSrc: ./pokemons.mind;" 
+  color-space="sRGB" 
+  renderer="colorManagement: true, physicallyCorrectLights" 
+  vr-mode-ui="enabled: false" 
+  device-orientation-permission-ui="enabled: false">
+  
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        init();
-        animate();
+  <!-- ALVO 0: VICTREEBEL -->
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-gltf-model 
+      src="./glbs/victreebel.glb" 
+      position="0 0 0" 
+      scale="0.3 0.3 0.3" 
+      rotation="75 0 0">
+    </a-gltf-model>
+  </a-entity>
 
-        function init() {
-            // Container
-            const container = document.createElement('div');
-            document.body.appendChild(container);
+  <!-- ALVO 1: UMBREON -->
+  <a-entity mindar-image-target="targetIndex: 1">
+    <a-gltf-model 
+      src="./glbs/umbreon.glb" 
+      position="0 0 0" 
+      scale="0.1 0.1 0.1">
+    </a-gltf-model>
+  </a-entity>
 
-            // Cena
-            scene = new THREE.Scene();
+  <!-- ALVO 2: SUICUNE -->
+  <a-entity mindar-image-target="targetIndex: 2">
+    <a-gltf-model 
+      src="./glbs/suicune.glb" 
+      position="0 -0.5 0"
+      angle="0 0 0" 
+      scale="0.1 0.1 0.1">
+    </a-gltf-model>
+  </a-entity>
 
-            // Câmera
-            camera = new THREE.PerspectiveCamera(
-                70,
-                window.innerWidth / window.innerHeight,
-                0.01,
-                20
-            );
+  <!-- ALVO 3: ENTEI -->
+  <a-entity mindar-image-target="targetIndex: 3">
+    <a-gltf-model 
+      src="./glbs/entei.glb" 
+      position="0 0 0" 
+      scale="0.05 0.05 0.05">
+    </a-gltf-model>
+  </a-entity>
 
-            // Luz
-            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-            light.position.set(0.5, 1, 0.25);
-            scene.add(light);
+  <!-- ALVO 4: ZAPDOS -->
+  <a-entity mindar-image-target="targetIndex: 4">
+    <a-gltf-model 
+      src="./glbs/zapdos.glb" 
+      position="0 0 0" 
+      scale="0.5 0.5 0.5" 
+      rotation="0 0 0">
+    </a-gltf-model>
+  </a-entity>
 
-            // Renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setPixelRatio(window.dpr);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true;
-            container.appendChild(renderer.domElement);
+  <!-- ALVO 5: PIKACHU -->
+  <a-entity mindar-image-target="targetIndex: 5">
+    <a-gltf-model 
+      src="./glbs/pikachu.glb" 
+      position="0 0 0" 
+      scale="0.1 0.1 0.1">
+    </a-gltf-model>
+  </a-entity>
 
-            // Botão AR
-            document.body.appendChild(
-                ARButton.createButton(renderer, {
-                    requiredFeatures: ['hit-test']
-                })
-            );
+  <!-- ALVO 6: REGIROCK -->
+  <a-entity mindar-image-target="targetIndex: 6">
+    <a-gltf-model 
+      src="./glbs/regirock.glb" 
+      position="0  0 0"
+      angle="0 0 0" 
+      scale="0.005 0.005 0.005">
+    </a-gltf-model>
+  </a-entity>
 
-            // Criar um cubo de exemplo
-            const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-            const material = new THREE.MeshPhongMaterial({
-                color: 0x00ff00,
-                shininess: 100
-            });
-            const cube = new THREE.Mesh(geometry, material);
-            cube.position.set(0, 0, -0.5);
-            scene.add(cube);
+  <a-entity mindar-image-target="targetIndex: 7">
+    <a-gltf-model 
+      src="./glbs/infernape.glb" 
+      position="0 0 0" 
+      scale="0.5 0.5 0.5">
+    </a-gltf-model>
+  </a-entity>
 
-            // Controller para interação
-            controller = renderer.xr.getController(0);
-            controller.addEventListener('select', onSelect);
-            scene.add(controller);
+   <!-- ALVO 0: GROUDON -->
+  <a-entity mindar-image-target="targetIndex: 8">
+    <a-gltf-model 
+      src="./glbs/tepig.glb" 
+      position="0 0 0" 
+      scale="5 5 5" 
+      rotation="0 0 0">
+    </a-gltf-model>
+  </a-entity>
 
-            // Redimensionar
-            window.addEventListener('resize', onWindowResize);
-        }
+  <!-- ALVO 1: KYOGRE (ou outro) -->
+  <a-entity mindar-image-target="targetIndex: 9">
+    <a-gltf-model 
+      src="./glbs/mimikyu.glb" 
+      position="0 0 0" 
+      scale="0.005 0.005 0.005">
+    </a-gltf-model>
+  </a-entity>
 
-        function onSelect() {
-            // Adicionar um cubo na posição do controller
-            const geometry = new THREE.BoxGeometry(0.05, 0.05, 0.05);
-            const material = new THREE.MeshPhongMaterial({
-                color: Math.random() * 0xffffff
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.copy(controller.position);
-            scene.add(mesh);
-        }
+  <!-- ALVO 2: RAYQUAZA -->
+  <a-entity mindar-image-target="targetIndex: 10">
+    <a-gltf-model 
+      src="./glbs/yveltal.glb" 
+      position="0 -0.5 0"
+      angle="0 0 0" 
+      scale="3 3 3">
+    </a-gltf-model>
+  </a-entity>
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+   <a-entity mindar-image-target="targetIndex: 11">
+    <a-gltf-model 
+      src="./glbs/groundon.glb" 
+      position="0 0 0" 
+      scale="0.5 0.5 0.5">
+    </a-gltf-model>
+  </a-entity>
 
-        function animate() {
-            renderer.setAnimationLoop(render);
-        }
+</a-scene>
 
-        function render() {
-            renderer.render(scene, camera);
-        }
+    <script>
+      // Apenas para atualizar o texto na tela quando o AR carregar
+      document.addEventListener("DOMContentLoaded", () => {
+        const sceneEl = document.querySelector('a-scene');
+        sceneEl.addEventListener("arReady", (event) => {
+           document.querySelector("#ui").innerText = "AR Pronto! Aponte para a carta.";
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
